@@ -1,32 +1,3 @@
-/*
-function initialize() {
-	var mapOptions = {
-	  center: new google.maps.LatLng(40.728783, -73.990801),
-	  zoom: 15
-	};
-
-	var map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
-}
-
-google.maps.event.addDomListener(window, 'load', initialize);
-*/
-
-/*
-var map = new OpenLayers.Map('map-canvas');
-map.addControl(new OpenLayers.Control.LayerSwitcher());
-
-var osm = new OpenLayers.Layer.OSM();
-map.addLayer(osm);
-
-map.setCenter(
-  new OpenLayers.LonLat(40.728783, -73.990801)
-    .transform(
-      new OpenLayers.Projection('EPSG:4326'),
-      map.getProjectionObject()
-    ),
-  17
-);
-*/
 
 
 function processBISData( rawData ) {
@@ -50,7 +21,7 @@ function processBISData( rawData ) {
 
 $(document).ready( function() {
 
-	var map = new L.Map('map-canvas').setView([40.734343, -73.990103], 16);
+	var map = new L.Map('map-canvas').setView([40.734343, -73.990103], 17);
 	new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	  { attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors', maxZoom: 17 }).addTo(map);
 
@@ -62,12 +33,15 @@ $(document).ready( function() {
 		var osmbd = new OSMBDatafier( data );
 		osmbd.setupControls('options_container');
 
-		Foo = new OSMBuildings(map).datafy( osmbd ).loadData();
+		baseMap = new OSMBuildings(map).datafy( osmbd ).loadData();
 		
-		$('.optionCB').on('change', function() {
+		$('.optionCB').on('change', function( event ) {
 			osmbd.updateControls();
-			Foo.refresh( osmbd );
+			baseMap.refresh( osmbd );
+			event.stopPropagation();
 		});
+
+		//$('.')
 
 	})
 

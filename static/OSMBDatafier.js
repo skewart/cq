@@ -52,6 +52,7 @@ function OSMBDatafier( data, inputRules ) {
 		return row;
 	}
 
+
 	function addRuleSection( container, rule, ruleName ) {
 		var row, cb, swatch, label,
 			section = document.createElement('div');
@@ -59,9 +60,42 @@ function OSMBDatafier( data, inputRules ) {
 			self.controls[ ruleName ][ option ] = true;
 			section.appendChild( makeRow( option, rule[option] ) );
 		}
-		section.appendChild( makeRow( 'Other', '#999999' ) );
-		self.controls.CurrentStatus.Other = true;
+		section.appendChild( makeRow( 'Unknown', '#999999' ) );
+		self.controls.CurrentStatus.Unknown = true;
 		container.appendChild( section );
+	}
+
+
+	function makeStoriesSlider( container ) {
+		self.controls.MinStories = 1;
+		var row = document.createElement('table'),
+			tr = document.createElement('tr'),
+			td = document.createElement('td'),
+			bar = document.createElement('div');
+			label = document.createElement('div');
+		row.setAttribute('style', 'width:120px;height:20px;margin:20px;');
+		bar.setAttribute('style', 'width:100px;height:12px;display:inline-block');
+		$( bar ).slider({
+			min: 1,
+			max: 110,
+			step: 1,
+			value: 1,
+			stop: function( event, ui ) {
+				self.controls.MinStories = ui.value;
+				if (self.map) {
+					self.map.refresh();
+				}
+			},
+			slide: function( event, ui ) {
+				$("#min_stories").text( ui.value );
+			}
+		});
+		label.innerHTML = 'Min. Stories <span id="min_stories">1</span>';
+		row.appendChild( tr );
+		tr.appendChild( td );
+		td.appendChild( bar );
+		td.appendChild( label );
+		container.appendChild( row );
 	}
 
 
@@ -72,6 +106,7 @@ function OSMBDatafier( data, inputRules ) {
 			this.controls[ rule ] = {}
 			addRuleSection( container, rules[ rule ], rule );
 		}
+		makeStoriesSlider( container );
 	}
 
 
@@ -133,12 +168,13 @@ function OSMBDatafier( data, inputRules ) {
 			item.roofColor = color;
 			item.wallColor = color;
 			item.altColor = color;
+			item.strokeColor = 'rgb(40,40,40)'
 		} else {
-			item.wallColor = '#999999'
-			item.roofColor = '#bbbbbb'
-			item.altColor = '#aaaaaa'
+			item.wallColor = 'rgba(153,153,153,0.8)'
+			item.roofColor = 'rgba(230,230,230,0.9)'
+			item.altColor = 'rgba(190,190,190,0.8)'
+			item.strokeColor = 'rgb(120,120,120)'
 		}
-		item.strokeColor = 'rgb(40,40,40)'
 	}
 
 	function isChecked( value ) {
@@ -146,9 +182,15 @@ function OSMBDatafier( data, inputRules ) {
 	}
 
 	this.shouldShow = function( item ) {
-		var cs;
-		( item.data ) ? cs = item.data.CurrentStatus : cs = 'Other'
-		return isChecked( cs );
+		var cs, ns;
+		if ( item.data ) { 
+			cs = item.data.CurrentStatus
+			ns = item.data.NumStories
+		} else {
+			cs = 'Unknown';//'Other';
+			ns = 1000;
+		}
+		return ( isChecked( cs ) && ns >= this.controls.MinStories );
 	}
 
 }

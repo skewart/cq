@@ -14,10 +14,12 @@
     <!--
     <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
     -->
-    <link rel="stylesheet" href="static/leaflet.css">    
+    <link rel="stylesheet" href="static/leaflet.css">
+    <link rel="stylesheet" href="static/css/ui-lightness/jquery-ui-1.10.4.custom.min.css">
     <script src="static/leaflet-src.js"></script>
 
     <script src="static/jquery.js"></script>
+    <script src="static/jquery-ui-1.10.4.custom.min.js"></script>
 
     <script src="static/OSMBDatafier.js"></script>
 
@@ -25,10 +27,8 @@
 
     <script type="text/javascript" src="static/maps.js"></script>
   </head>
-  <body>
-    <div id="map-canvas"/>
-    <div id="options_container" style="z-index: 1000; position:fixed; right:0px; background-color: rgba(100,100,100,0.5)">
-
-    </div>
+  <body style="font-family:sans-serif; color:#eeeeee">
+    <div id="options_container" style="z-index: 10000000000; position:fixed; right:0px; background-color: rgba(80,80,80,0.6)"> </div>
+    <div id="map-canvas"/></div>
   </body>
 </html>

@@ -1724,7 +1724,7 @@ var Buildings = {
         _mh = CAM_Z / (CAM_Z-mh);
       }
 
-      if ( colorController ) {
+      if ( colorController && item.needsColor ) {
         colorController.setColors( item )
       }
 
@@ -1867,8 +1867,9 @@ var Simplified = {
 
       altColor  = item.altColor  || altColorAlpha;
       roofColor = item.roofColor || roofColorAlpha;
+      strokeColor = item.strokeColor || altColor;
 
-      this.context.strokeStyle = altColor;
+      this.context.strokeStyle = strokeColor;
 
       if (item.shape === 'cylinder' || item.shape === 'cone' || item.shape === 'dome') {
         Cylinder.circle(this.context, item.center.x-ORIGIN_X, item.center.y-ORIGIN_Y, item.radius, roofColor);
@@ -2122,7 +2123,7 @@ function fadeIn() {
   if (animTimer) {
     return;
   }
-
+  var first = true;
   animTimer = setInterval(function() {
     var dataItems = Data.items,
       isNeeded = false;
@@ -2134,6 +2135,9 @@ function fadeIn() {
           dataItems[i].scale = 1;
         }
         isNeeded = true;
+        dataItems[i].needsColor = false;
+      } else {
+        dataItems[i].needsColor = true;
       }
     }
 
@@ -2512,6 +2516,7 @@ proto.refresh = function( dataManager ) {
 proto.datafy = function( dataManager ) {
   Layers.OSMBD = dataManager;
   Data.OSMBD = dataManager;
+  dataManager.map = this;
   return this;
 }
 
