@@ -1730,7 +1730,8 @@ var Buildings = {
       wallColor = item.wallColor || wallColorAlpha;
       altColor  = item.altColor  || altColorAlpha;
       roofColor = item.roofColor || roofColorAlpha;
-      context.strokeStyle = altColor;
+      strokeColor = item.strokeColor || altColor;
+      context.strokeStyle = strokeColor;
 
       switch (item.shape) {
         case 'cylinder':
