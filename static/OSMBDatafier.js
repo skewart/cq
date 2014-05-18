@@ -185,9 +185,14 @@ function OSMBDatafier( data, inputRules ) {
 		var cs, ns;
 		if ( item.data ) { 
 			cs = item.data.CurrentStatus
-			ns = item.data.NumStories
+			//ns = item.data.NumStories
 		} else {
 			cs = 'Unknown';//'Other';
+			
+		}
+		if ( item.tags && item.tags.height ) {
+			ns = parseFloat( item.tags.height );
+		} else {
 			ns = 1000;
 		}
 		return ( isChecked( cs ) && ns >= this.controls.MinStories );
