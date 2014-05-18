@@ -1688,7 +1688,7 @@ var Buildings = {
 
       item = dataItems[i];
 
-      // Added 5.17.14
+      //Added 5.17.14
       if ( colorController && !colorController.shouldShow( item ) ) {
         continue;
       }

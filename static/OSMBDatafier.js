@@ -2,6 +2,10 @@
 function OSMBDatafier( data, inputRules ) {
 
 	this.data = data;
+	this.controls = {}
+	this.controlsContainerID = '';
+
+	var self = this;
 
 	var rules = inputRules || {
 		CurrentStatus: {
@@ -9,20 +13,65 @@ function OSMBDatafier( data, inputRules ) {
 			OK: 'rgba(0,220,0,0.9)',
 			UN: 'rgba(245,0,0,0.9)',
 			PR: 'rgba(30,140,180,0.9)',
-			SW: 'rgba(100,45,205,0.9)',
-		},
-		yearBuilt: function( value ) {
-			if ( value > 2000 ) {
-				return 'rgba(255,255,0,0.8)'
-			} else {
-				return 'rgba(140,140,140,0.8)'
-			}
+			SW: 'rgba(100,45,205,0.9)'
+			//Other: '#999999'
 		}
 	}
 
 
 	this.setRules = function( newRules ) {
 		rules = newRules;
+	}
+
+	this.updateControls = function() {
+		var elems = document.getElementsByClassName('optionCB');
+		for ( var i = 0; i < elems.length; i++ ) {
+			var option = elems[i].getAttribute('data-option');
+			self.controls.CurrentStatus[ option ] = elems[i].checked
+		}
+	}
+
+	function makeRow( optionName, value ) {
+		var row, cb, swatch, label;
+		row = document.createElement('div');
+		row.setAttribute('style', 'margin:5px;');
+		cb = document.createElement('input');
+		cb.setAttribute('type', 'checkbox');
+		cb.setAttribute('checked', true );
+		cb.setAttribute('style', 'display: inline-block;');
+		cb.setAttribute('data-option', optionName );
+		cb.setAttribute('class', 'optionCB')
+		swatch = document.createElement('div');
+		swatch.setAttribute('style', 'background-color:' + value + '; width:20px;height:20px;margin:0px 10px;display:inline-block;' );
+		label = document.createElement('div');
+		label.innerHTML = optionName;
+		label.setAttribute('style', 'display:inline-block;margin-right:10px;');
+		row.appendChild( cb );
+		row.appendChild( swatch );
+		row.appendChild( label );
+		return row;
+	}
+
+	function addRuleSection( container, rule, ruleName ) {
+		var row, cb, swatch, label,
+			section = document.createElement('div');
+		for ( option in rule ) {
+			self.controls[ ruleName ][ option ] = true;
+			section.appendChild( makeRow( option, rule[option] ) );
+		}
+		section.appendChild( makeRow( 'Other', '#999999' ) );
+		self.controls.CurrentStatus.Other = true;
+		container.appendChild( section );
+	}
+
+
+	this.setupControls = function( containerID ) {
+		this.controlsContainerID = containerID
+		var container = document.getElementById( containerID );
+		for ( rule in rules ) {
+			this.controls[ rule ] = {}
+			addRuleSection( container, rules[ rule ], rule );
+		}
 	}
 
 
@@ -79,23 +128,27 @@ function OSMBDatafier( data, inputRules ) {
 
 	this.setColors = function( item ) {
     	var color, roofColor, wallColor, altColor;
- 		if ( item.data && item.data.CurrentStatus ) {
+ 		if ( item.data && item.data.CurrentStatus && self.controls.CurrentStatus[ item.data.CurrentStatus ] ) {
       		color = rules.CurrentStatus[ item.data.CurrentStatus ]
 			item.roofColor = color;
 			item.wallColor = color;
 			item.altColor = color;
 		} else {
-			
+			item.wallColor = '#999999'
+			item.roofColor = '#bbbbbb'
+			item.altColor = '#aaaaaa'
 		}
 		item.strokeColor = 'rgb(40,40,40)'
 	}
 
+	function isChecked( value ) {
+		return self.controls.CurrentStatus[ value ];
+	}
+
 	this.shouldShow = function( item ) {
-		return true;
-		if ( item.data ) {
-			return true;
-		}
-		return false;
+		var cs;
+		( item.data ) ? cs = item.data.CurrentStatus : cs = 'Other'
+		return isChecked( cs );
 	}
 
 }

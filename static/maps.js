@@ -54,17 +54,18 @@ $(document).ready( function() {
 	new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	  { attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors', maxZoom: 17 }).addTo(map);
 
-	
 
 	$.getJSON('static/BIS_combined.json', function( rawData ) {
 		
 		var data = processBISData( rawData );
 
 		var osmbd = new OSMBDatafier( data );
+		osmbd.setupControls('options_container');
+
 		Foo = new OSMBuildings(map).datafy( osmbd ).loadData();
 		
-		$('#options_container').on('click', function() {
-			console.log('refreshing...')
+		$('.optionCB').on('change', function() {
+			osmbd.updateControls();
 			Foo.refresh( osmbd );
 		});
 
