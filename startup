@@ -1,0 +1,2 @@
+export API_KEY=AIzaSyBtYhH-ah4GbJqjn6jcHwMkjnashKnaSQ0
+source ~/python/venv/facade_env/bin/activate
