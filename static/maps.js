@@ -29,30 +29,48 @@ map.setCenter(
 */
 
 
+function processBISData( rawData ) {
+	var data = []
+	for ( var i = 0, rdLen = rawData.length; i < rdLen; i++ ) {
+		if ( rawData[i].BIN ) {
+			rawData[i].BIN = parseInt( rawData[i].BIN );
+		}	
+		if ( rawData[i].NumStories ) {
+			rawData[i].NumStories = parseInt( rawData[i].NumStories );
+		}
+		data.push({
+			BIN: rawData[i].BIN,
+			data: rawData[i]
+		})
+	}
+	return data;
+}
+
 
 
 $(document).ready( function() {
 
-	var map = new L.Map('map-canvas').setView([40.728783, -73.990801], 17);
+	var map = new L.Map('map-canvas').setView([40.734343, -73.990103], 16);
 	new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 	  { attribution: 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors', maxZoom: 17 }).addTo(map);
 
-	var osmbd = new OSMBDatafier()
-
-	Foo = new OSMBuildings(map).datafy( osmbd ).loadData();
-
-	// map.on('click', function(event) {
-	// 	console.log( event );
-	// })
 	
 
+	$.getJSON('static/BIS_combined.json', function( rawData ) {
+		
+		var data = processBISData( rawData );
 
-	//Foo.setStyle({color:'#ff0000'});
-	$('#options_container').on('click', function() {
-		console.log('refreshing...')
-		//Foo.setStyle({color:'#ff0000'});
-		Foo.refresh( osmbd );
-	});
+		var osmbd = new OSMBDatafier( data );
+		Foo = new OSMBuildings(map).datafy( osmbd ).loadData();
+		
+		$('#options_container').on('click', function() {
+			console.log('refreshing...')
+			Foo.refresh( osmbd );
+		});
+
+	})
+
+
 
 
 });

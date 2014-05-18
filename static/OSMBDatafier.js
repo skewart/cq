@@ -1,11 +1,15 @@
 
 function OSMBDatafier( data, inputRules ) {
 
+	this.data = data;
 
 	var rules = inputRules || {
-		facadeStatus: {
-			A: 'rgba(255,0,0,0.8)',
-			B: 'rgba(0,0,255,0.8)'
+		CurrentStatus: {
+			NR: 'rgba(210,210,210,0.8)',
+			OK: 'rgba(0,220,0,0.9)',
+			UN: 'rgba(245,0,0,0.9)',
+			PR: 'rgba(30,140,180,0.9)',
+			SW: 'rgba(100,45,205,0.9)',
 		},
 		yearBuilt: function( value ) {
 			if ( value > 2000 ) {
@@ -26,9 +30,9 @@ function OSMBDatafier( data, inputRules ) {
 
 		// TODO Make this go off of the latlong too, not just NYC BIN or address info...
 
-		data = data || [
+		data = data || this.data || [
 			{ 
-				bin: 2492381,
+				BIN: 2492381,
 				latlong: [1,1],  // lat long data
 				data: {
 					facadeStatus: 'A',
@@ -42,19 +46,31 @@ function OSMBDatafier( data, inputRules ) {
 		var iBin, iiBin, bins = {}
 		for ( var i = 0, iLen = items.length; i < iLen; i++ ) {
 			iBin = items[i].tags['nycdoitt:bin']
+			var ic = i;
 			if ( iBin ) {
 				iiBin = parseInt( iBin )
-				if ( bins[ iiBin ] ) {
-					bins[ iiBin ].push( items[i] )
-				} else {
-					bins[ iiBin ] = [ items[i] ]
-				}
-			}		
+			} else {
+				iiBin = 'NONE';
+			}
+			if ( bins[ iiBin ] ) {
+				bins[ iiBin ].push( [ items[i], ic ] )
+			} else {
+				bins[ iiBin ] = [ [ items[i], ic ] ]
+			} 
 		}		
 
-		for ( var j = 0, dLen = data.length; j < dLen; d++ ) {
-			if ( bins[ data[j].bin ] ) {
-				bins[ data[j].bin ].data = data[j].data
+		for ( var j = 0, dLen = data.length; j < dLen; j++ ) {
+			if ( bins[ data[j].BIN ] ) {
+				for ( var k = 0; k < bins[ data[j].BIN ].length; k++ ) {
+					bins[ data[j].BIN ][k][0].data = data[j].data
+				}
+			}
+		}
+
+		for ( var k = 0, bLen = bins.length; k < bLen; k++ ) {
+			for ( var m = 0, tbLen = bins[k].length; m < tbLen; m++ ) {
+				var index = bins[k][m][1];
+				items[ index ] = bins[k][m][1];
 			}
 		}
 
@@ -62,20 +78,25 @@ function OSMBDatafier( data, inputRules ) {
 
 
 	this.setColors = function( item ) {
-      if ( Math.random() > 0.5 ) {
-        item.roofColor = 'rgba(240,0,0,0.9)'
-      	item.wallColor = 'rgba(240,0,0,0.9)'
-        item.altColor = 'rgba(173,55,47,0.9)'
-      	item.strokeColor = 'rgb(40,40,40)'
-      } else {
-        item.roofColor = 'rgba(0,0,180,0.9)'
-        item.wallColor = 'rgba(0,0,180,0.9)'
-        item.altColor = 'rgba(12,36,133,0.9)'
-        item.strokeColor = 'rgb(40,40,40)'
-      }
+    	var color, roofColor, wallColor, altColor;
+ 		if ( item.data && item.data.CurrentStatus ) {
+      		color = rules.CurrentStatus[ item.data.CurrentStatus ]
+			item.roofColor = color;
+			item.wallColor = color;
+			item.altColor = color;
+		} else {
+			
+		}
+		item.strokeColor = 'rgb(40,40,40)'
 	}
 
-	//bindData( items, data, rules );
+	this.shouldShow = function( item ) {
+		return true;
+		if ( item.data ) {
+			return true;
+		}
+		return false;
+	}
 
 }
 

@@ -1206,21 +1206,15 @@ var Data = {
     return footprint;
   },
 
-  // Added 5.17.14
-  addInfo: function( inputData ) {
-    var status;
-    for ( var i = 0, len = inputData.length; i < len; i++ ) {
-      ( Math.random() < 0.5 ) ? status = 0 : status = 1;
-      inputData[i].status = status;
-    }
-    return inputData;
-  },
-
   createClosure: function(cacheKey) {
     var self = this;
     return function(data) {
       var parsedData = self.parse(data);
-      parsedData = self.addInfo( parsedData );
+      // Quick hack to override the wallColor properties that these guys are coming in with
+      for ( var i = 0, len = parsedData.length; i < len; i++ ) {
+        parsedData[i].wallColor = '#999999'
+      }
+      if ( self.OSMBD ) { self.OSMBD.bindData( parsedData ) }
       Cache.add(parsedData, cacheKey);
       self.addRenderItems(parsedData, true);
     };
@@ -1327,7 +1321,8 @@ var Data = {
         holes:      holes.length ? holes : null,
         shape:      item.shape, // TODO: drop footprint
         radius:     item.radius/METERS_PER_PIXEL,
-        status:     item.status
+        tags:       item.tags,
+        data:       item.data
       });
     }
 
@@ -1690,7 +1685,13 @@ var Buildings = {
     });
 
     for (i = 0, il = dataItems.length; i < il; i++) {
+
       item = dataItems[i];
+
+      // Added 5.17.14
+      if ( colorController && !colorController.shouldShow( item ) ) {
+        continue;
+      }
 
       if (Simplified.isSimple(item)) {
         continue;
@@ -2510,7 +2511,7 @@ proto.refresh = function( dataManager ) {
 // Added 5.17.14
 proto.datafy = function( dataManager ) {
   Layers.OSMBD = dataManager;
-  //dataManager.bindData( Data.items )
+  Data.OSMBD = dataManager;
   return this;
 }
 
